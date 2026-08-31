@@ -45,10 +45,13 @@ export function GarmentDetailSheet({
   garment,
   open,
   onOpenChange,
+  onCantWear,
 }: {
   garment: GarmentView | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** When set (outfit screen), shows the fast "Can't wear this" action. */
+  onCantWear?: (garmentId: string) => void;
 }) {
   const router = useRouter();
   const setGarmentStatus = useAppStore((s) => s.setGarmentStatus);
@@ -64,6 +67,21 @@ export function GarmentDetailSheet({
     <Sheet open={open} onOpenChange={onOpenChange} title={garment.name} hideTitle>
       <div className="space-y-5">
         <GarmentVisual garment={garment} className="mx-auto aspect-[5/4] w-full max-w-xs" />
+
+        {onCantWear ? (
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-full"
+            onClick={() => {
+              onCantWear(garment.id);
+              toast(`Choosing around the ${garment.name.toLowerCase()}`);
+              onOpenChange(false);
+            }}
+          >
+            Can&apos;t wear this today
+          </Button>
+        ) : null}
 
         <div className="flex items-start justify-between gap-4">
           <div>

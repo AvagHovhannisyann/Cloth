@@ -274,6 +274,7 @@ export function HomeScreen() {
         onOpenChange={(open) => {
           if (!open) setInspecting(null);
         }}
+        onCantWear={wornToday ? undefined : rec.markUnavailable}
       />
     </div>
   );
