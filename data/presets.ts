@@ -1,0 +1,155 @@
+import type { DressCodeId, DressCodePreset, OccasionId, OccasionPreset } from "@/types/context";
+
+export const OCCASIONS: Record<OccasionId, OccasionPreset> = {
+  school: {
+    id: "school",
+    label: "School",
+    formalityTarget: 6,
+    formalityMin: 4,
+    formalityMax: 9,
+    styleBias: { "classic-core": 5, "clean-casual": 2, sport: -10 },
+  },
+  "important-school": {
+    id: "important-school",
+    label: "Important school day",
+    formalityTarget: 7,
+    formalityMin: 6,
+    formalityMax: 10,
+    styleBias: { "classic-core": 6, "clean-casual": 0, sport: -14 },
+  },
+  presentation: {
+    id: "presentation",
+    label: "Presentation",
+    formalityTarget: 8,
+    formalityMin: 7,
+    formalityMax: 10,
+    styleBias: { "classic-core": 6, "clean-casual": -2, sport: -16 },
+  },
+  exam: {
+    id: "exam",
+    label: "Exam",
+    formalityTarget: 6,
+    formalityMin: 4,
+    formalityMax: 9,
+    styleBias: { "classic-core": 4, "clean-casual": 3, sport: -6 },
+  },
+  meeting: {
+    id: "meeting",
+    label: "Meeting",
+    formalityTarget: 8,
+    formalityMin: 6,
+    formalityMax: 10,
+    styleBias: { "classic-core": 6, "clean-casual": -1, sport: -14 },
+  },
+  conference: {
+    id: "conference",
+    label: "Conference",
+    formalityTarget: 8,
+    formalityMin: 7,
+    formalityMax: 10,
+    styleBias: { "classic-core": 6, "clean-casual": -2, sport: -16 },
+  },
+  casual: {
+    id: "casual",
+    label: "Casual day",
+    formalityTarget: 4,
+    formalityMin: 2,
+    formalityMax: 7,
+    styleBias: { "classic-core": 0, "clean-casual": 5, sport: 1 },
+  },
+  sport: {
+    id: "sport",
+    label: "Sport",
+    formalityTarget: 2,
+    formalityMin: 1,
+    formalityMax: 4,
+    styleBias: { "classic-core": -10, "clean-casual": -2, sport: 10 },
+  },
+  weekend: {
+    id: "weekend",
+    label: "Weekend",
+    formalityTarget: 4,
+    formalityMin: 2,
+    formalityMax: 8,
+    styleBias: { "classic-core": 1, "clean-casual": 5, sport: 2 },
+  },
+  dinner: {
+    id: "dinner",
+    label: "Dinner",
+    formalityTarget: 7,
+    formalityMin: 5,
+    formalityMax: 10,
+    styleBias: { "classic-core": 5, "clean-casual": 1, sport: -12 },
+  },
+  travel: {
+    id: "travel",
+    label: "Travel",
+    formalityTarget: 4,
+    formalityMin: 2,
+    formalityMax: 7,
+    styleBias: { "classic-core": 0, "clean-casual": 4, sport: 3 },
+  },
+  custom: {
+    id: "custom",
+    label: "Custom",
+    formalityTarget: 6,
+    formalityMin: 1,
+    formalityMax: 10,
+    styleBias: {},
+  },
+};
+
+export const OCCASION_ORDER: OccasionId[] = [
+  "school",
+  "important-school",
+  "presentation",
+  "exam",
+  "meeting",
+  "conference",
+  "casual",
+  "sport",
+  "weekend",
+  "dinner",
+  "travel",
+  "custom",
+];
+
+export const DRESS_CODES: Record<DressCodeId, DressCodePreset> = {
+  none: { id: "none", label: "No dress code", description: "No hard constraints." },
+  "all-white": {
+    id: "all-white",
+    label: "All white",
+    description: "Every visible piece reads white.",
+  },
+  "dark-colors": {
+    id: "dark-colors",
+    label: "Dark colors",
+    description: "Dark tones only — navy, black, deep brown.",
+  },
+  "no-sportswear": {
+    id: "no-sportswear",
+    label: "No sportswear",
+    description: "Athletic pieces excluded.",
+  },
+  "smart-casual": {
+    id: "smart-casual",
+    label: "Smart casual",
+    description: "Polished but relaxed — no athletic pieces.",
+  },
+  formal: {
+    id: "formal",
+    label: "Formal",
+    description: "The dressiest the wardrobe allows.",
+  },
+  casual: { id: "casual", label: "Casual", description: "Relaxed, still put together." },
+};
+
+export const DRESS_CODE_ORDER: DressCodeId[] = [
+  "none",
+  "all-white",
+  "dark-colors",
+  "no-sportswear",
+  "smart-casual",
+  "formal",
+  "casual",
+];
