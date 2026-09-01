@@ -59,6 +59,17 @@ export function applyFavoriteOutfit(prefs: PreferenceState, outfitId: string): P
   };
 }
 
+/** Unfavouriting reverses the favourite drift, so toggling is symmetric. */
+export function applyUnfavoriteOutfit(
+  prefs: PreferenceState,
+  outfitId: string,
+): PreferenceState {
+  return {
+    ...prefs,
+    outfitAffinity: bump(prefs.outfitAffinity, outfitId, -FAVORITE_OUTFIT_DELTA),
+  };
+}
+
 export function applyManualSelection(
   prefs: PreferenceState,
   garmentIds: string[],

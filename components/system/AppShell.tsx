@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
 import { useAppStore } from "@/lib/store";
 import { useHydration } from "@/hooks/useHydration";
@@ -16,6 +17,10 @@ function useThemeSync(hydrated: boolean) {
     const apply = () => {
       const dark = theme === "dark" || (theme === "system" && media.matches);
       root.classList.toggle("dark", dark);
+      // Keep the browser chrome / status bar in step with a forced theme.
+      document
+        .querySelectorAll('meta[name="theme-color"]')
+        .forEach((m) => m.setAttribute("content", dark ? "#171512" : "#f4f1ea"));
     };
     apply();
     media.addEventListener("change", apply);
@@ -37,21 +42,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   useServiceWorker();
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col">
-      <main className="flex-1">{children}</main>
-      <Nav />
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            background: "var(--color-raised)",
-            color: "var(--color-ink)",
-            border: "1px solid var(--color-line)",
-            borderRadius: "0.625rem",
-            fontSize: "0.875rem",
-          },
-        }}
-      />
-    </div>
+    <MotionConfig reducedMotion="user">
+      <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col">
+        <main className="flex-1">{children}</main>
+        <Nav />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: "var(--color-raised)",
+              color: "var(--color-ink)",
+              border: "1px solid var(--color-line)",
+              borderRadius: "0.625rem",
+              fontSize: "0.875rem",
+            },
+          }}
+        />
+      </div>
+    </MotionConfig>
   );
 }

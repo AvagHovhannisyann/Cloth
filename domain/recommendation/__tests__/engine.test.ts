@@ -76,6 +76,23 @@ describe("temperature hard limits", () => {
     ).toBe(true);
   });
 
+  it("never picks a knit on a cool morning before a hot afternoon", () => {
+    const result = recommend(
+      baseInput({
+        weather: makeWeather({ temperature: 14, feelsLike: 14, high: 28 }),
+      }),
+    );
+    expect(result.pick).not.toBeNull();
+    for (const c of result.ranked) {
+      expect(c.top.warmth).toBeLessThanOrEqual(4);
+    }
+    const knitRejections = result.rejected.filter((r) => r.outfit.id === "s13");
+    expect(knitRejections.length).toBe(1);
+    expect(
+      knitRejections[0]!.reasons.some((reason) => reason.kind === "temperature"),
+    ).toBe(true);
+  });
+
   it("prefers warm knits in cold weather and drops short sleeves", () => {
     const result = recommend(
       baseInput({ weather: makeWeather({ temperature: 5, feelsLike: 3 }) }),

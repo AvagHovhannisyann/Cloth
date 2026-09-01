@@ -15,6 +15,7 @@ import { SEED_OUTFITS } from "@/data/outfits";
 import {
   applyFavoriteOutfit,
   applySkip,
+  applyUnfavoriteOutfit,
   applyWear,
   EMPTY_PREFERENCES,
 } from "@/domain/recommendation/learning";
@@ -117,7 +118,9 @@ export const useAppStore = create<AppStore>()(
               ...s.outfitState,
               [id]: { ...prev, favorite: nowFavorite },
             },
-            prefs: nowFavorite ? applyFavoriteOutfit(s.prefs, id) : s.prefs,
+            prefs: nowFavorite
+              ? applyFavoriteOutfit(s.prefs, id)
+              : applyUnfavoriteOutfit(s.prefs, id),
           };
         }),
 
@@ -161,12 +164,45 @@ export const useAppStore = create<AppStore>()(
         }),
 
       removeWear: (recordId) =>
-        set((s) => ({ history: s.history.filter((r) => r.id !== recordId) })),
+        set((s) => {
+          const record = s.history.find((r) => r.id === recordId);
+          if (!record) return {};
+          const history = s.history.filter((r) => r.id !== recordId);
+          // Reconcile derived counters so amend/remove never double-counts.
+          const garmentState = { ...s.garmentState };
+          for (const id of [record.topId, record.bottomId, record.shoeId]) {
+            const prev = garmentState[id] ?? DEFAULT_GARMENT_STATE;
+            garmentState[id] = {
+              ...prev,
+              wearCount: Math.max(0, prev.wearCount - 1),
+              lastWornAt: latestGarmentWearDate(id, history),
+            };
+          }
+          let outfitState = s.outfitState;
+          if (record.outfitId) {
+            const prev = s.outfitState[record.outfitId] ?? DEFAULT_OUTFIT_STATE;
+            outfitState = {
+              ...s.outfitState,
+              [record.outfitId]: {
+                ...prev,
+                timesWorn: Math.max(0, prev.timesWorn - 1),
+                lastWornAt: latestOutfitWearDate(record.outfitId, history),
+              },
+            };
+          }
+          return { history, garmentState, outfitState };
+        }),
 
       skipOutfit: (outfitId, garmentIds) =>
         set((s) => {
           const prev = s.outfitState[outfitId] ?? DEFAULT_OUTFIT_STATE;
+          const garmentState = { ...s.garmentState };
+          for (const id of garmentIds) {
+            const g = garmentState[id] ?? DEFAULT_GARMENT_STATE;
+            garmentState[id] = { ...g, skipCount: g.skipCount + 1 };
+          }
           return {
+            garmentState,
             outfitState: {
               ...s.outfitState,
               [outfitId]: { ...prev, skipCount: prev.skipCount + 1 },
@@ -202,6 +238,30 @@ export const useAppStore = create<AppStore>()(
     },
   ),
 );
+
+function latestGarmentWearDate(
+  garmentId: string,
+  history: WearRecord[],
+): string | undefined {
+  let latest: string | undefined;
+  for (const r of history) {
+    if (r.topId === garmentId || r.bottomId === garmentId || r.shoeId === garmentId) {
+      if (!latest || r.dateISO > latest) latest = r.dateISO;
+    }
+  }
+  return latest;
+}
+
+function latestOutfitWearDate(
+  outfitId: string,
+  history: WearRecord[],
+): string | undefined {
+  let latest: string | undefined;
+  for (const r of history) {
+    if (r.outfitId === outfitId && (!latest || r.dateISO > latest)) latest = r.dateISO;
+  }
+  return latest;
+}
 
 /* ------------------------------------------------------------------ views */
 

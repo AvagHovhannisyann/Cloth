@@ -10,7 +10,7 @@ import type {
 import type { AppSettings, PreferenceState } from "@/types/settings";
 import type { WeatherSnapshot } from "@/types/weather";
 import { OCCASIONS } from "@/data/presets";
-import { effectiveTemperature } from "@/domain/weather/comfort";
+import { wearingTemperatures } from "@/domain/weather/comfort";
 import { applyHardConstraints, type HardFilterContext } from "./filters";
 import { computeBreakdown, type ScoringContext } from "./scoring";
 import { eliteBand, rankOutfits, selectFromEliteCandidates, type Rng } from "./selection";
@@ -50,19 +50,20 @@ function resolve(outfit: OutfitView, garments: Map<string, GarmentView>): Resolv
 export function recommend(input: EngineInput): RecommendationResult {
   const rng = input.rng ?? Math.random;
   const occasion = OCCASIONS[input.occasion];
-  const effectiveTemp = effectiveTemperature(input.weather, input.settings.comfort);
+  const temps = wearingTemperatures(input.weather, input.settings.comfort);
 
   const filterCtx: HardFilterContext = {
     occasion,
     dressCode: input.dressCode,
-    effectiveTemp,
+    tempNow: temps ? temps.now : null,
+    tempPeak: temps ? temps.peak : null,
     rainExpected: input.weather?.rainExpected ?? false,
     snowExpected: input.weather?.snowExpected ?? false,
   };
 
   const scoringCtx: ScoringContext = {
     occasion,
-    effectiveTemp,
+    effectiveTemp: temps ? temps.blended : null,
     weather: input.weather,
     history: input.history,
     settings: input.settings,

@@ -20,7 +20,11 @@ export interface RecommendationController {
   candidate: OutfitCandidate | null;
   source: WearSource;
   plannedToday: boolean;
-  generate: (opts?: { fresh?: boolean }) => OutfitCandidate | null;
+  generate: (opts?: {
+    fresh?: boolean;
+    occasion?: OccasionId;
+    dressCode?: DressCodeId;
+  }) => OutfitCandidate | null;
   alternative: () => void;
   surprise: () => void;
   wearThis: () => void;
@@ -47,12 +51,14 @@ export function useRecommendation(): RecommendationController {
   const today = todayISO();
   const plan = plans[today];
 
-  const [occasion, setOccasion] = useState<OccasionId>(
-    plan?.locked ? plan.occasion : settings.defaultOccasion,
-  );
-  const [dressCode, setDressCode] = useState<DressCodeId>(
-    plan?.locked ? plan.dressCode : "none",
-  );
+  // null = follow the locked plan / default — resolves correctly even before
+  // the persisted settings hydrate, and tracks a plan created later.
+  const [occasionChoice, setOccasionChoice] = useState<OccasionId | null>(null);
+  const [dressCodeChoice, setDressCodeChoice] = useState<DressCodeId | null>(null);
+  const occasion: OccasionId =
+    occasionChoice ?? (plan?.locked ? plan.occasion : settings.defaultOccasion);
+  const dressCode: DressCodeId =
+    dressCodeChoice ?? (plan?.locked ? plan.dressCode : "none");
   const [result, setResult] = useState<RecommendationResult | null>(null);
   const [candidateId, setCandidateId] = useState<string | null>(null);
   const [source, setSource] = useState<WearSource>("recommended");
@@ -60,19 +66,19 @@ export function useRecommendation(): RecommendationController {
   const wornToday = history.some((r) => r.dateISO === today);
 
   const runEngine = useCallback(
-    () =>
+    (occ: OccasionId, code: DressCodeId) =>
       recommend({
         garments,
         outfits,
-        occasion,
-        dressCode,
+        occasion: occ,
+        dressCode: code,
         weather: weatherNow,
         history,
         settings,
         prefs,
         todayIso: today,
       }),
-    [garments, outfits, occasion, dressCode, weatherNow, history, settings, prefs, today],
+    [garments, outfits, weatherNow, history, settings, prefs, today],
   );
 
   // Resolve the visible candidate from the last engine run.
@@ -83,8 +89,16 @@ export function useRecommendation(): RecommendationController {
 
   const plannedToday = Boolean(plan?.locked);
 
-  const generate = useCallback((opts?: { fresh?: boolean }): OutfitCandidate | null => {
-    const res = runEngine();
+  const generate = useCallback((opts?: {
+    fresh?: boolean;
+    occasion?: OccasionId;
+    dressCode?: DressCodeId;
+  }): OutfitCandidate | null => {
+    const occ = opts?.occasion ?? occasion;
+    const code = opts?.dressCode ?? dressCode;
+    if (opts?.occasion) setOccasionChoice(opts.occasion);
+    if (opts?.dressCode) setDressCodeChoice(opts.dressCode);
+    const res = runEngine(occ, code);
     setResult(res);
     // A fresh run (explicit context change) re-evaluates from scratch.
     if (!opts?.fresh) {
@@ -112,7 +126,7 @@ export function useRecommendation(): RecommendationController {
     setSource("recommended");
     if (res.pick) setDailyPick({ dateISO: today, outfitId: res.pick.outfit.id });
     return res.pick;
-  }, [runEngine, plan, dailyPick, today, setDailyPick]);
+  }, [runEngine, occasion, dressCode, plan, dailyPick, today, setDailyPick]);
 
   const alternative = useCallback(() => {
     if (!result || !candidate) return;
@@ -130,7 +144,7 @@ export function useRecommendation(): RecommendationController {
   }, [result, candidate, skipOutfit, setDailyPick, today]);
 
   const surprise = useCallback(() => {
-    const res = result ?? runEngine();
+    const res = result ?? runEngine(occasion, dressCode);
     setResult(res);
     const next = pickSurprise(res.ranked, Math.random);
     if (next) {
@@ -138,7 +152,7 @@ export function useRecommendation(): RecommendationController {
       setSource("surprise");
       setDailyPick({ dateISO: today, outfitId: next.outfit.id });
     }
-  }, [result, runEngine, setDailyPick, today]);
+  }, [result, runEngine, occasion, dressCode, setDailyPick, today]);
 
   const wearThis = useCallback(() => {
     if (!candidate) return;
@@ -202,8 +216,8 @@ export function useRecommendation(): RecommendationController {
   return {
     occasion,
     dressCode,
-    setOccasion,
-    setDressCode,
+    setOccasion: setOccasionChoice,
+    setDressCode: setDressCodeChoice,
     result,
     candidate,
     source,

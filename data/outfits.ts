@@ -137,7 +137,7 @@ const SIGNATURE: OutfitSpec[] = [
     shoeId: "shoe-01",
     tier: "signature",
     baseScore: 97,
-    name: "White polo, navy trousers",
+    name: "Embroidered white polo, navy trousers",
     explanation:
       "The white embroidered polo against dark navy is the cleanest line in the wardrobe — classic, school-right, timeless.",
   },
@@ -192,7 +192,7 @@ const SIGNATURE: OutfitSpec[] = [
     shoeId: "shoe-01",
     tier: "signature",
     baseScore: 95,
-    name: "White polo, navy trousers",
+    name: "Plain white polo, navy trousers",
     explanation: "Warm white over dark navy — the timeless formula, done plainly.",
   },
   {

@@ -7,8 +7,10 @@ import { isAvailable } from "@/types/garment";
 export interface HardFilterContext {
   occasion: OccasionPreset;
   dressCode: DressCodeId;
-  /** Comfort-adjusted feels-like °C; null when weather is unknown. */
-  effectiveTemp: number | null;
+  /** Comfort-adjusted feels-like °C right now; null when weather is unknown. */
+  tempNow: number | null;
+  /** Comfort-adjusted warmest point of the wearing window (≥ tempNow). */
+  tempPeak: number | null;
   rainExpected: boolean;
   snowExpected: boolean;
 }
@@ -77,18 +79,24 @@ export function applyHardConstraints(
     reasons.push({ kind: "dress-code", detail: "Below smart-casual formality" });
   }
 
-  // 3. Impossible temperature.
-  if (ctx.effectiveTemp !== null) {
+  // 3. Impossible temperature — for right now AND for the day's peak, so a
+  // cool morning never puts the user in a knit before a hot afternoon.
+  if (ctx.tempNow !== null) {
     const { min, max } = outfit.temperatureRange;
-    if (ctx.effectiveTemp < min) {
+    if (ctx.tempNow < min) {
       reasons.push({
         kind: "temperature",
-        detail: `Too light for ${Math.round(ctx.effectiveTemp)}°C (needs ${min}°C+)`,
+        detail: `Too light for ${Math.round(ctx.tempNow)}°C (needs ${min}°C+)`,
       });
-    } else if (ctx.effectiveTemp > max) {
+    } else if (ctx.tempNow > max) {
       reasons.push({
         kind: "temperature",
-        detail: `Too warm for ${Math.round(ctx.effectiveTemp)}°C (works up to ${max}°C)`,
+        detail: `Too warm for ${Math.round(ctx.tempNow)}°C (works up to ${max}°C)`,
+      });
+    } else if (ctx.tempPeak !== null && ctx.tempPeak > max + 1) {
+      reasons.push({
+        kind: "temperature",
+        detail: `Too warm for today's high of ${Math.round(ctx.tempPeak)}°C (works up to ${max}°C)`,
       });
     }
   }

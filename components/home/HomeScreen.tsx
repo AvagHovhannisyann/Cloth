@@ -123,7 +123,7 @@ export function HomeScreen() {
             className="mt-1 inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong px-3 text-[0.8125rem] font-medium text-ink-secondary transition-colors hover:text-ink"
           >
             {contextLabel}
-            {rec.plannedToday ? " · Planned" : ""}
+            {rec.source === "planned" && candidate ? " · Planned" : ""}
           </button>
         </div>
       </header>
@@ -261,11 +261,8 @@ export function HomeScreen() {
         onOpenChange={setContextOpen}
         occasion={rec.occasion}
         dressCode={rec.dressCode}
-        onOccasionChange={rec.setOccasion}
-        onDressCodeChange={rec.setDressCode}
-        onApply={() => {
-          // Re-run with the new context on next tick so state has settled.
-          setTimeout(() => rec.generate({ fresh: true }), 0);
+        onApply={(newOccasion, newDressCode) => {
+          rec.generate({ fresh: true, occasion: newOccasion, dressCode: newDressCode });
         }}
       />
       <GarmentDetailSheet

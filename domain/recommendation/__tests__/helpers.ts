@@ -35,11 +35,12 @@ export function markStatus(
 }
 
 export function makeWeather(patch: Partial<WeatherSnapshot> = {}): WeatherSnapshot {
+  const temperature = patch.temperature ?? 23;
   return {
-    temperature: 23,
-    feelsLike: 23,
-    high: 25,
-    low: 15,
+    temperature,
+    feelsLike: temperature,
+    high: temperature + 2,
+    low: temperature - 6,
     precipitationProbability: 5,
     rainExpected: false,
     snowExpected: false,
