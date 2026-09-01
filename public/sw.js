@@ -1,7 +1,7 @@
 /* Atelier service worker — keeps the shell and wardrobe usable offline. */
 
-const CACHE = "atelier-v1";
-const PRECACHE = ["/", "/wardrobe", "/history", "/planner", "/settings"];
+const CACHE = "atelier-v2";
+const PRECACHE = ["/", "/wardrobe", "/schedule", "/history", "/planner", "/settings"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

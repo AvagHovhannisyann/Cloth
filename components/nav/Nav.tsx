@@ -2,12 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, CalendarRange, Settings2, Shirt, Sun } from "lucide-react";
+import {
+  CalendarDays,
+  CalendarRange,
+  GraduationCap,
+  Settings2,
+  Shirt,
+  Sun,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
   { href: "/", label: "Today", icon: Sun },
   { href: "/wardrobe", label: "Wardrobe", icon: Shirt },
+  { href: "/schedule", label: "School", icon: GraduationCap },
   { href: "/history", label: "History", icon: CalendarDays },
   { href: "/planner", label: "Planner", icon: CalendarRange },
   { href: "/settings", label: "Settings", icon: Settings2 },
@@ -31,7 +39,7 @@ export function Nav() {
               href={href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-w-14 flex-col items-center gap-1 px-3 pb-2 pt-2.5 transition-colors",
+                "flex min-w-12 flex-col items-center gap-1 px-2 pb-2 pt-2.5 transition-colors sm:min-w-14 sm:px-3",
                 active ? "text-ink" : "text-ink-faint hover:text-ink-secondary",
               )}
             >

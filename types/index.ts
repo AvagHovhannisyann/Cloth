@@ -5,3 +5,4 @@ export * from "./weather";
 export * from "./history";
 export * from "./settings";
 export * from "./recommendation";
+export * from "./school";

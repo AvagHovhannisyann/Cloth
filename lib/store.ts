@@ -6,6 +6,7 @@ import type { Garment, GarmentState, GarmentView, AvailabilityStatus } from "@/t
 import type { OutfitDefinition, OutfitState, OutfitView } from "@/types/outfit";
 import type { OutfitPlan, WearRecord } from "@/types/history";
 import type { AppSettings, PreferenceState } from "@/types/settings";
+import type { Lesson, SchoolDayIndex } from "@/types/school";
 import type { WeatherBundle } from "@/domain/weather/openMeteo";
 import { DEFAULT_GARMENT_STATE } from "@/types/garment";
 import { DEFAULT_OUTFIT_STATE } from "@/types/outfit";
@@ -36,6 +37,8 @@ interface PersistedState {
   prefs: PreferenceState;
   weather: WeatherBundle | null;
   dailyPick: DailyPick | null;
+  /** Per-day timetable overrides; missing days fall back to the seed. */
+  scheduleOverrides: Partial<Record<SchoolDayIndex, Lesson[]>>;
 }
 
 interface AppActions {
@@ -52,6 +55,7 @@ interface AppActions {
   updateSettings: (patch: Partial<AppSettings>) => void;
   setWeather: (bundle: WeatherBundle | null) => void;
   setDailyPick: (pick: DailyPick | null) => void;
+  setDaySchedule: (day: SchoolDayIndex, lessons: Lesson[]) => void;
   importState: (state: PersistedState) => void;
   resetAll: () => void;
 }
@@ -69,6 +73,7 @@ const EMPTY_STATE: PersistedState = {
   prefs: EMPTY_PREFERENCES,
   weather: null,
   dailyPick: null,
+  scheduleOverrides: {},
 };
 
 export const useAppStore = create<AppStore>()(
@@ -227,6 +232,11 @@ export const useAppStore = create<AppStore>()(
 
       setDailyPick: (pick) => set({ dailyPick: pick }),
 
+      setDaySchedule: (day, lessons) =>
+        set((s) => ({
+          scheduleOverrides: { ...s.scheduleOverrides, [day]: lessons },
+        })),
+
       importState: (state) => set({ ...EMPTY_STATE, ...state }),
 
       resetAll: () => set({ ...EMPTY_STATE }),
@@ -301,6 +311,7 @@ export function exportStateToJSON(state: PersistedState): string {
     prefs: state.prefs,
     weather: state.weather,
     dailyPick: state.dailyPick,
+    scheduleOverrides: state.scheduleOverrides,
   };
   return JSON.stringify(snapshot, null, 2);
 }

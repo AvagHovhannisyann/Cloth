@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
@@ -13,6 +14,8 @@ import { explainRecommendation } from "@/domain/recommendation/explain";
 import { daysSinceGarmentWorn } from "@/domain/history/wear";
 import { todayISO } from "@/domain/history/dates";
 import { OCCASIONS, DRESS_CODES } from "@/data/presets";
+import { daySpan, isSchoolDayIndex, SEED_SCHEDULE } from "@/data/schedule";
+import type { SchoolDayIndex } from "@/types/school";
 import { greetingForHour } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -36,6 +39,7 @@ export function HomeScreen() {
   const plans = useAppStore((s) => s.plans);
   const introSeen = useAppStore((s) => s.settings.introSeen);
   const updateSettings = useAppStore((s) => s.updateSettings);
+  const scheduleOverrides = useAppStore((s) => s.scheduleOverrides);
 
   const [whyOpen, setWhyOpen] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
@@ -70,6 +74,15 @@ export function HomeScreen() {
     () => history.find((r) => r.dateISO === today),
     [history, today],
   );
+
+  // Today's school hours, when today is a school day with lessons.
+  const schoolSpan = useMemo(() => {
+    const weekday = new Date().getDay();
+    if (!isSchoolDayIndex(weekday)) return null;
+    const dayIndex = weekday as SchoolDayIndex;
+    const lessons = scheduleOverrides[dayIndex] ?? SEED_SCHEDULE[dayIndex];
+    return daySpan(lessons);
+  }, [scheduleOverrides]);
 
   const explanation = useMemo(
     () =>
@@ -117,14 +130,24 @@ export function HomeScreen() {
             {weatherNow ? ` · ${weatherNow.locationName}` : ""}
           </p>
           <WeatherLine weather={weatherNow} status={status} />
-          <button
-            type="button"
-            onClick={() => setContextOpen(true)}
-            className="mt-1 inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong px-3 text-[0.8125rem] font-medium text-ink-secondary transition-colors hover:text-ink"
-          >
-            {contextLabel}
-            {rec.source === "planned" && candidate ? " · Planned" : ""}
-          </button>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setContextOpen(true)}
+              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong px-3 text-[0.8125rem] font-medium text-ink-secondary transition-colors hover:text-ink"
+            >
+              {contextLabel}
+              {rec.source === "planned" && candidate ? " · Planned" : ""}
+            </button>
+            {schoolSpan ? (
+              <Link
+                href="/schedule"
+                className="inline-flex h-8 items-center rounded-full border border-line-strong px-3 text-[0.8125rem] font-medium tabular-nums text-ink-secondary transition-colors hover:text-ink"
+              >
+                Lessons {schoolSpan.start}–{schoolSpan.end}
+              </Link>
+            ) : null}
+          </div>
         </div>
       </header>
 
