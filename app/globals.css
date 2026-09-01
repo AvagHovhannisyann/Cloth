@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Warm off-white / bone ground, charcoal ink, warm greys. */
+  --color-ground: #f4f1ea;
+  --color-surface: #faf8f3;
+  --color-raised: #ffffff;
+  --color-ink: #211e1a;
+  --color-ink-secondary: #5f594f;
+  --color-ink-faint: #756e61;
+  --color-line: #e3ded4;
+  --color-line-strong: #cfc9bc;
+  --color-accent: #8a6d4a;
+  --color-danger: #a04b3c;
+  --color-tile: #ece8df;
+  --color-inverse: #211e1a;
+  --color-inverse-ink: #f4f1ea;
+}
+
+.dark {
+  /* Genuinely designed dark: near-black charcoal, warm dark stone. */
+  --color-ground: #171512;
+  --color-surface: #1e1c18;
+  --color-raised: #26231e;
+  --color-ink: #ece8df;
+  --color-ink-secondary: #a49d90;
+  --color-ink-faint: #8a8477;
+  --color-line: #2e2b25;
+  --color-line-strong: #3d382f;
+  --color-accent: #c2a273;
+  --color-danger: #c76a58;
+  --color-tile: #24211c;
+  --color-inverse: #ece8df;
+  --color-inverse-ink: #1b1916;
+}
+
+@theme inline {
+  --color-ground: var(--color-ground);
+  --color-surface: var(--color-surface);
+  --color-raised: var(--color-raised);
+  --color-ink: var(--color-ink);
+  --color-ink-secondary: var(--color-ink-secondary);
+  --color-ink-faint: var(--color-ink-faint);
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+  --color-accent: var(--color-accent);
+  --color-danger: var(--color-danger);
+  --color-tile: var(--color-tile);
+  --color-inverse: var(--color-inverse);
+  --color-inverse-ink: var(--color-inverse-ink);
+
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+
+  --shadow-hairline: 0 0 0 1px var(--color-line);
+  --shadow-card: 0 1px 2px rgb(33 30 26 / 0.04), 0 4px 16px rgb(33 30 26 / 0.05);
+  --shadow-sheet: 0 -8px 40px rgb(33 30 26 / 0.14);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv01";
+  overscroll-behavior-y: none;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-ground);
+}
+
+/* Safe-area helpers for standalone PWA on iPhone / iPad. */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+.top-safe {
+  top: env(safe-area-inset-top);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pb-tabbar {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 4.75rem);
+}
+
+/* Small-caps label utility used across the app. */
+.label-caps {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Fine woven-paper texture for garment tiles. */
+.tile-weave {
+  background-color: var(--color-tile);
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgb(33 30 26 / 0.012) 0px,
+    rgb(33 30 26 / 0.012) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Hide scrollbars on horizontal chip rows without breaking scroll. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
